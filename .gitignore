@@ -1,0 +1,52 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual Environments
+.venv/
+.env
+*.env
+
+# Django
+db.sqlite3
+*.log
+media/
+staticfiles/
+*.DS_Store
+celerybeat-schedule
+*.pyc
+*.sqlite3
+*.cache
+*.pot
+*.mo
+
+# Redis, Celery, Postgres
+*.pid
+celerybeat-schedule
+celerybeat.pid
+celerybeat.db
+dump.rdb
+*.rdb
+*.sock
+
+# Logs
+logs/
+*.log
+nohup.out
+
+# Ignore migrations
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Ignore all database dumps
+*.sql
+*.db
+
+# PyCharm
+.idea/
+*.iml
+
