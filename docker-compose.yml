@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  django-service:
+    build: .
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - db
+
+  celery-worker:
+    build: .
+    env_file:
+      - .env.docker
+    command: celery -A price_tracker worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+
+  celery-beat:
+    build: .
+    env_file:
+      - .env.docker
+    command: celery -A price_tracker beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env.docker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5443:5432"
+
+
+volumes:
+  postgres_data:

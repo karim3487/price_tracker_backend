@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+
+from celery.schedules import crontab
 from environs import Env
 
 env = Env()
@@ -28,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = []
 
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "django_celery_beat",
     "api",
 ]
 
@@ -90,7 +93,7 @@ DATABASES = {
         "NAME": env.str("POSTGRES_DB_NAME", "price_tracker"),
         "USER": env.str("POSTGRES_USER", "postgres"),
         "PASSWORD": env.str("POSTGRES_PASSWORD", "postgres"),
-        "HOST": env.str("POSTGRES_HOST", "localhost"),
+        "HOST": env.str("POSTGRES_HOST", "db"),
         "PORT": env.int("POSTGRES_PORT", 5432),
     }
 }
@@ -136,3 +139,20 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Celery
+CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
+CELERY_BEAT_SCHEDULE = {
+    "check_all_products_every_hour": {
+        "task": "api.tasks.check_all_products",
+        "schedule": crontab(),
+    },
+}
+
+# Scrapy service
+SCRAPER_API_URL = env.str(
+    "SCRAPER_API_URL", "http://localhost:8001/api/start_scraping/"
+)
